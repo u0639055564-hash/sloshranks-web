@@ -158,8 +158,8 @@
         const MASTER_USER = "SloshyMC";
         const MASTER_PASSWORD = "Sloshy2024.gg"; 
 
-        // TODO: Trage hier exakt dieselbe npoint-URL ein wie in der index.html!
-        const API_URL = "https://api.npoint.io/DEINE_ERSTELLTE_ID";
+        // npoint-URL ist hier fest integriert!
+        const API_URL = "https://api.npoint.io/a8e597666efb56956234";
 
         const ALL_RANKS = ["Tester", "Bronze", "Silber", "Gold", "Platin", "Diamand", "Champion", "Grandmaster", "Legend", "Unreal"];
         const ALL_KITS = ["Crystal", "Axe", "Sword", "SMP", "Pot", "UHC", "Mace", "OP Netherite", "Netherite Pot"];
@@ -186,16 +186,41 @@
             }
         }
 
-        // Lädt die veränderten Daten in die Cloud hoch
+        // Lädt die veränderten Daten per PUT in die Cloud hoch
+        async function saveToWeb() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(players)
+                });
+                
+                if(response.ok) {
+                    console.log("Erfolgreich im Web gespeichert!");
+                } else {
+                    console.error("Speichern fehlgeschlagen. Status:", response.status);
+                    alert("Speichern im Web fehlgeschlagen! (Status " + response.status + ")");
+                }
+            } catch (error) {
+                console.error("Netzwerkfehler beim Speichern:", error);
+                alert("Netzwerkfehler beim Speichern im Web.");
+            }
+        }
+
         async function syncWithCloud() {
             try {
-                await fetch(API_URL, {
-                    method: 'POST',
+                const response = await fetch(API_URL, {
+                    method: 'PUT', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(players)
                 });
+                if(!response.ok) {
+                    console.error("Cloud-Sync fehlgeschlagen:", response.status);
+                }
             } catch (e) {
-                alert("Fehler: Cloud-Synchronisation fehlgeschlagen!");
+                console.error("Fehler: Cloud-Synchronisation fehlgeschlagen!", e);
             }
         }
 
@@ -267,7 +292,7 @@
             }
 
             renderAdminPanel();
-            await syncWithCloud(); // Direkt hochladen
+            await saveToWeb(); 
             
             document.getElementById('new-ign').value = "";
             document.querySelectorAll('.new-rank-cb').forEach(cb => cb.checked = false);
@@ -328,7 +353,7 @@
             } else {
                 players[playerIndex].kits[kit] = ranksArray.filter(r => r !== checkbox.value);
             }
-            await syncWithCloud(); // Sofortiges Cloud-Update bei Klick
+            await syncWithCloud(); 
         }
 
         async function deletePlayer(index) {
@@ -339,7 +364,7 @@
             }
         }
 
-        /* TESTER ACCOUNT LOGIK (Lokal auf Admin-PC) */
+        /* TESTER ACCOUNT LOGIK */
         function createTesterAccount() {
             const user = document.getElementById('tester-username').value.trim();
             const pass = document.getElementById('tester-password').value.trim();
@@ -379,7 +404,7 @@
 
         function deleteTester(index) {
             testers.splice(index, 1);
-            localStorage.setItem('slosh_testers', JSON.stringify(testers));
+            localStorage.setItem('slosh_ranks_testers', JSON.stringify(testers));
             renderTesterList();
         }
     </script>
