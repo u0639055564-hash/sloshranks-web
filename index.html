@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SloshRanks - Leaderboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --card-bg: #141414;
+            --border-color: #262626;
+            --accent-yellow: #FFDD00;
+            --text-main: #E5E5E5;
+            --text-muted: #737373;
+            
+            --color-tester: #38BDF8;
+            --color-bronze: #CD7F32;
+            --color-silber: #C0C0C0;
+            --color-gold: #FFD700;
+            --color-platin: #E5E4E2;
+            --color-diamand: #00E5FF;
+            --color-champion: #10B981;
+            --color-grandmaster: #F43F5E;
+            --color-legend: #FF8C00;
+            --color-unreal: #9D00FF;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 0);
+            background-size: 24px 24px;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { font-size: 2.2rem; font-weight: 700; color: #FFF; margin-bottom: 5px; text-align: center; }
+        .subtitle { color: var(--accent-yellow); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 40px; font-weight: 600; }
+        h2 { font-size: 1.15rem; font-weight: 600; margin-top: 0; margin-bottom: 20px; color: #FFF; }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 650px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            box-sizing: border-box;
+        }
+
+        .filter-container { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        
+        .filter-btn {
+            background: #1f1f1f; border: 1px solid var(--border-color); color: var(--text-muted);
+            padding: 6px 10px; font-size: 0.75rem; font-weight: 500; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .filter-btn:hover, .filter-btn.active { background: #FFF; color: #000; border-color: #FFF; }
+
+        .top-list-item { display: flex; align-items: center; background: rgba(255, 255, 255, 0.01); margin: 8px 0; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; }
+        .avatar { width: 32px; height: 32px; border-radius: 4px; margin-right: 14px; background-color: #222; image-rendering: pixelated; }
+        .player-info { flex-grow: 1; }
+        .player-name { font-weight: 600; font-size: 0.95rem; color: #FFF; }
+        .player-kits-display { color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; display: flex; flex-direction: column; gap: 4px; }
+
+        .kit-row { display: flex; align-items: center; gap: 8px; }
+        .kit-label { color: #aaa; font-weight: 500; min-width: 90px; }
+
+        .badge-list { display: flex; gap: 4px; flex-wrap: wrap; }
+        .rank-badge { font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block; }
+        
+        .rank-Tester { background: rgba(56, 189, 248, 0.15); color: var(--color-tester); }
+        .rank-Bronze { background: rgba(205, 127, 50, 0.15); color: var(--color-bronze); }
+        .rank-Silber { background: rgba(192, 192, 192, 0.15); color: var(--color-silber); }
+        .rank-Gold { background: rgba(255, 215, 0, 0.15); color: var(--color-gold); }
+        .rank-Platin { background: rgba(229, 228, 226, 0.15); color: var(--color-platin); }
+        .rank-Diamand { background: rgba(0, 229, 255, 0.15); color: var(--color-diamand); }
+        .rank-Champion { background: rgba(16, 185, 129, 0.15); color: var(--color-champion); }
+        .rank-Grandmaster { background: rgba(244, 63, 94, 0.15); color: var(--color-grandmaster); }
+        .rank-Legend { background: rgba(255, 140, 0, 0.15); color: var(--color-legend); }
+        .rank-Unreal { background: rgba(157, 0, 255, 0.15); color: var(--color-unreal); }
+
+        .admin-link { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-top: 20px; transition: color 0.2s; }
+        .admin-link:hover { color: var(--accent-yellow); }
+    </style>
+</head>
+<body>
+
+    <h1>SloshRanks</h1>
+    <div class="subtitle">Leaderboard</div>
+
+    <div class="container">
+        <h2>Globales Leaderboard</h2>
+        
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterList('All', this)">Alle</button>
+            <button class="filter-btn" onclick="filterList('Tester', this)">Tester</button>
+            <button class="filter-btn" onclick="filterList('Bronze', this)">Bronze</button>
+            <button class="filter-btn" onclick="filterList('Silber', this)">Silber</button>
+            <button class="filter-btn" onclick="filterList('Gold', this)">Gold</button>
+            <button class="filter-btn" onclick="filterList('Platin', this)">Platin</button>
+            <button class="filter-btn" onclick="filterList('Diamand', this)">Diamand</button>
+            <button class="filter-btn" onclick="filterList('Champion', this)">Champion</button>
+            <button class="filter-btn" onclick="filterList('Grandmaster', this)">Grandmaster</button>
+            <button class="filter-btn" onclick="filterList('Legend', this)">Legend</button>
+            <button class="filter-btn" onclick="filterList('Unreal', this)">Unreal</button>
+        </div>
+
+        <div id="topList"></div>
+    </div>
+
+    <a href="admin.html" class="admin-link">→ Zum Admin- & Tester-Bereich</a>
+
+    <script>
+        // TODO: Füge hier deine npoint-ID ein!
+        const API_URL = "https://api.npoint.io/DEINE_ERSTELLTE_ID";
+        
+        let players = [];
+        let currentFilter = 'All';
+
+        document.addEventListener("DOMContentLoaded", () => { loadWebData(); });
+
+        async function loadWebData() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                players = Array.isArray(data) ? data : [];
+                renderTopList();
+            } catch (e) {
+                document.getElementById('topList').innerHTML = '<p style="color: #FF4E4E; text-align:center;">Fehler beim Laden der Live-Daten.</p>';
+            }
+        }
+
+        function renderTopList() {
+            const listDiv = document.getElementById('topList');
+            listDiv.innerHTML = "";
+
+            let filteredPlayers = [];
+
+            players.forEach(player => {
+                let matchesFilter = false;
+                let activeKitsData = {};
+
+                for (const [kit, ranksArray] of Object.entries(player.kits || {})) {
+                    if (ranksArray && ranksArray.length > 0) {
+                        if (currentFilter === 'All' || ranksArray.includes(currentFilter)) {
+                            matchesFilter = true;
+                            activeKitsData[kit] = ranksArray;
+                        }
+                    }
+                }
+
+                if (matchesFilter) {
+                    filteredPlayers.push({
+                        ign: player.ign,
+                        visibleKits: activeKitsData
+                    });
+                }
+            });
+
+            if(filteredPlayers.length === 0) {
+                listDiv.innerHTML = '<p style="color: var(--text-muted); text-align:center; font-size:0.85rem; padding: 20px 0;">Keine Einträge für diese Auswahl vorhanden.</p>';
+                return;
+            }
+
+            filteredPlayers.forEach(player => {
+                const skinUrl = `https://minotar.net/avatar/${player.ign}/32`;
+                
+                let kitsHtml = '';
+                for (const [kitName, ranks] of Object.entries(player.visibleKits)) {
+                    let badges = ranks.map(r => `<span class="rank-badge rank-${r}">${r}</span>`).join(' ');
+                    kitsHtml += `
+                        <div class="kit-row">
+                            <span class="kit-label">${kitName}:</span>
+                            <div class="badge-list">${badges}</div>
+                        </div>
+                    `;
+                }
+
+                listDiv.innerHTML += `
+                    <div class="top-list-item" style="align-items: flex-start;">
+                        <img class="avatar" src="${skinUrl}" onerror="this.onerror=null; this.src='https://minotar.net/avatar/char/32';" alt="" style="margin-top: 3px;">
+                        <div class="player-info">
+                            <div class="player-name">${player.ign}</div>
+                            <div class="player-kits-display">
+                                ${kitsHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterList(rank, button) {
+            currentFilter = rank;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            renderTopList();
+        }
+    </script>
+</body>
+</html>

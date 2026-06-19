@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SloshRanks - Management Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --card-bg: #141414;
+            --border-color: #262626;
+            --accent-yellow: #FFDD00;
+            --text-main: #E5E5E5;
+            --text-muted: #737373;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { font-size: 2.2rem; font-weight: 700; color: #FFF; margin-bottom: 40px; text-align: center; }
+        h2 { font-size: 1.15rem; font-weight: 600; margin-top: 0; margin-bottom: 20px; color: #FFF; }
+        h3 { font-size: 0.95rem; margin-top: 0; margin-bottom: 12px; color: #FFF; }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 650px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            box-sizing: border-box;
+        }
+
+        label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 0.8rem; font-weight: 500; }
+        
+        .mc-input, select {
+            background-color: #1a1a1a; border: 1px solid var(--border-color); border-radius: 6px;
+            color: #fff; padding: 10px; font-size: 0.9rem; width: 100%; box-sizing: border-box; margin-bottom: 15px; font-family: inherit;
+        }
+        .mc-input:focus, select:focus { outline: none; border-color: var(--accent-yellow); }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+            background: #1a1a1a;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #FFF;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .checkbox-label input { cursor: pointer; accent-color: var(--accent-yellow); }
+
+        .mc-btn {
+            background-color: #FFF; color: #000; border: none; border-radius: 6px; padding: 12px;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s ease; font-family: inherit;
+        }
+        .mc-btn:hover { background-color: #e5e5e5; }
+
+        .admin-edit-box { background: rgba(255, 255, 255, 0.01); padding: 20px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .hidden { display: none !important; }
+        .error-text { color: #FF4E4E; font-size: 0.8rem; margin-top: 8px; text-align: center; }
+        .back-link { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-top: 20px; }
+        .back-link:hover { color: #FFF; }
+        
+        .tester-badge { background: #1e293b; border: 1px solid #38bdf8; color: #38bdf8; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; margin-left: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>SloshRanks Portal</h1>
+
+    <div class="container" id="login-panel">
+        <h2>Anmelden</h2>
+        <label for="loginUser">Nutzername</label>
+        <input type="text" id="loginUser" class="mc-input" placeholder="SloshyMC oder Tester-Name">
+        
+        <label for="loginPass">Sicherheitsschlüssel / Passwort</label>
+        <input type="password" id="loginPass" class="mc-input" placeholder="••••••••">
+        
+        <button onclick="handleLogin()" class="mc-btn" style="background-color: #1a1a1a; color: #FFF; border: 1px solid var(--border-color);">Einloggen</button>
+        <p id="login-error" class="error-text"></p>
+    </div>
+
+    <div class="container hidden" id="main-dashboard">
+        <h2 style="color: var(--accent-yellow); border-bottom: 1px solid #FFDD00; padding-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
+            <span>Kontrollzentrum (Online Cloud)</span>
+            <span id="user-role-indicator" class="tester-badge">Rolle</span>
+        </h2>
+        
+        <div class="admin-edit-box" style="border-left: 3px solid var(--accent-yellow); margin-bottom: 25px;">
+            <h3>Spieler anlegen / Kit-Ränge setzen</h3>
+            <label>Minecraft Name (IGN)</label>
+            <input type="text" id="new-ign" class="mc-input" placeholder="z.B. Notch">
+            
+            <label>Für welches Kit?</label>
+            <select id="new-kit">
+                <option value="Crystal">Crystal</option>
+                <option value="Axe">Axe</option>
+                <option value="Sword">Sword</option>
+                <option value="SMP">SMP</option>
+                <option value="Pot">Pot</option>
+                <option value="UHC">UHC</option>
+                <option value="Mace">Mace</option>
+                <option value="OP Netherite">OP Netherite</option>
+                <option value="Netherite Pot">Netherite Pot</option>
+            </select>
+
+            <label>Ränge für dieses Kit vergeben</label>
+            <div class="checkbox-group" id="new-ranks-group">
+                </div>
+            
+            <button onclick="savePlayer()" class="mc-btn" style="margin-top: 5px;">Änderungen im Web speichern</button>
+        </div>
+
+        <h2>Bestehende Web-Datenbank verwalten</h2>
+        <div id="admin-player-list">Lade Live-Daten aus dem Web...</div>
+
+        <div id="super-admin-section" class="hidden" style="margin-top: 40px; border-top: 1px dashed #333; padding-top: 25px;">
+            <h2 style="color: #38BDF8;">Tester-Zugänge verwalten</h2>
+            <div class="admin-edit-box" style="border-left: 3px solid #38BDF8;">
+                <h3>Neuen Tester-Account erstellen</h3>
+                <label>Tester Name</label>
+                <input type="text" id="tester-username" class="mc-input" placeholder="z.B. Kevin123">
+                <label>Tester Passwort</label>
+                <input type="text" id="tester-password" class="mc-input" placeholder="Sicheres Passwort">
+                <button onclick="createTesterAccount()" class="mc-btn" style="background-color: #1e293b; color: #38BDF8; border: 1px solid #38bdf8;">Tester-Account aktivieren</button>
+            </div>
+            <div id="tester-accounts-list"></div>
+        </div>
+
+        <button onclick="logout()" class="mc-btn" style="background-color: #261212; color: #FF4E4E; margin-top: 30px; border: 1px solid #401a1a;">Ausloggen</button>
+    </div>
+
+    <a href="index.html" class="back-link">← Zurück zum Leaderboard</a>
+
+    <script>
+        // Deine Haupt-Zugangsdaten
+        const MASTER_USER = "SloshyMC";
+        const MASTER_PASSWORD = "Sloshy2024.gg"; 
+
+        // TODO: Trage hier exakt dieselbe npoint-URL ein wie in der index.html!
+        const API_URL = "https://api.npoint.io/DEINE_ERSTELLTE_ID";
+
+        const ALL_RANKS = ["Tester", "Bronze", "Silber", "Gold", "Platin", "Diamand", "Champion", "Grandmaster", "Legend", "Unreal"];
+        const ALL_KITS = ["Crystal", "Axe", "Sword", "SMP", "Pot", "UHC", "Mace", "OP Netherite", "Netherite Pot"];
+
+        let players = [];
+        let testers = JSON.parse(localStorage.getItem('slosh_ranks_testers')) || [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            buildRankCheckboxes('new-ranks-group', 'new-rank-cb');
+            loadWebData();
+        });
+
+        // Holt die Ränge per API aus dem Web
+        async function loadWebData() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                players = Array.isArray(data) ? data : [];
+                if(document.getElementById('main-dashboard').classList.contains('hidden') === false) {
+                    renderAdminPanel();
+                }
+            } catch (e) {
+                console.error("Fehler beim Cloud-Abruf:", e);
+            }
+        }
+
+        // Lädt die veränderten Daten in die Cloud hoch
+        async function syncWithCloud() {
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(players)
+                });
+            } catch (e) {
+                alert("Fehler: Cloud-Synchronisation fehlgeschlagen!");
+            }
+        }
+
+        function buildRankCheckboxes(containerId, nameClass) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = ALL_RANKS.map(rank => `
+                <label class="checkbox-label">
+                    <input type="checkbox" class="${nameClass}" value="${rank}"> ${rank}
+                </label>
+            `).join('');
+        }
+
+        function handleLogin() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            const errorElement = document.getElementById('login-error');
+
+            if(user === MASTER_USER && pass === MASTER_PASSWORD) {
+                successLogin("Owner / Admin");
+                document.getElementById('super-admin-section').classList.remove('hidden');
+                renderTesterList();
+                return;
+            }
+
+            const validTester = testers.find(t => t.username.toLowerCase() === user.toLowerCase() && t.password === pass);
+            if(validTester) {
+                successLogin(`Tester: ${validTester.username}`);
+                document.getElementById('super-admin-section').classList.add('hidden');
+                return;
+            }
+
+            errorElement.innerText = "Nutzername oder Passwort falsch.";
+        }
+
+        function successLogin(roleText) {
+            document.getElementById('login-error').innerText = "";
+            document.getElementById('login-panel').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.remove('hidden');
+            document.getElementById('user-role-indicator').innerText = roleText;
+            renderAdminPanel();
+        }
+
+        function logout() {
+            document.getElementById('loginPass').value = "";
+            document.getElementById('loginUser').value = "";
+            document.getElementById('login-panel').classList.remove('hidden');
+            document.getElementById('main-dashboard').classList.add('hidden');
+        }
+
+        async function savePlayer() {
+            const ign = document.getElementById('new-ign').value.trim();
+            const kit = document.getElementById('new-kit').value;
+            
+            const checkedBoxes = document.querySelectorAll('.new-rank-cb:checked');
+            const selectedRanks = Array.from(checkedBoxes).map(cb => cb.value);
+
+            if(!ign) { alert("Bitte Minecraft Namen eingeben!"); return; }
+
+            let playerIndex = players.findIndex(p => p.ign.toLowerCase() === ign.toLowerCase());
+
+            if(playerIndex === -1) {
+                let newPlayer = { ign: ign, kits: {} };
+                ALL_KITS.forEach(k => newPlayer.kits[k] = []);
+                newPlayer.kits[kit] = selectedRanks;
+                players.push(newPlayer);
+            } else {
+                if(!players[playerIndex].kits) players[playerIndex].kits = {};
+                players[playerIndex].kits[kit] = selectedRanks;
+            }
+
+            renderAdminPanel();
+            await syncWithCloud(); // Direkt hochladen
+            
+            document.getElementById('new-ign').value = "";
+            document.querySelectorAll('.new-rank-cb').forEach(cb => cb.checked = false);
+            alert(`Erfolgreich für ${ign} in der Cloud gesichert!`);
+        }
+
+        function renderAdminPanel() {
+            const listDiv = document.getElementById('admin-player-list');
+            listDiv.innerHTML = "";
+
+            if(players.length === 0) {
+                listDiv.innerHTML = '<p style="color: var(--text-muted); font-size:0.85rem;">Keine Spielerdaten in der Cloud.</p>';
+                return;
+            }
+
+            players.forEach((player, pIndex) => {
+                let kitsConfigurationHtml = '';
+
+                ALL_KITS.forEach(kit => {
+                    let playerKitRanks = (player.kits && player.kits[kit]) ? player.kits[kit] : [];
+                    
+                    let checkboxes = ALL_RANKS.map(rank => {
+                        const checked = playerKitRanks.includes(rank) ? 'checked' : '';
+                        return `
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="${rank}" ${checked} onchange="updateLiveRank(${pIndex}, '${kit}', this)"> ${rank}
+                            </label>
+                        `;
+                    }).join('');
+
+                    kitsConfigurationHtml += `
+                        <div style="margin-top:12px; padding-top:10px; border-top:1px solid #1f1f1f;">
+                            <div style="font-size:0.8rem; font-weight:600; color:var(--accent-yellow); margin-bottom:6px;">Kit: ${kit}</div>
+                            <div class="checkbox-group">${checkboxes}</div>
+                        </div>
+                    `;
+                });
+
+                listDiv.innerHTML += `
+                    <div class="admin-edit-box">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="font-size:1rem; color:#FFF;">${player.ign}</strong>
+                            <button onclick="deletePlayer(${pIndex})" style="background:transparent; border:none; color:#FF4E4E; cursor:pointer; font-size:0.8rem;">Spieler löschen ×</button>
+                        </div>
+                        ${kitsConfigurationHtml}
+                    </div>
+                `;
+            });
+        }
+
+        async function updateLiveRank(playerIndex, kit, checkbox) {
+            if(!players[playerIndex].kits) players[playerIndex].kits = {};
+            if(!players[playerIndex].kits[kit]) players[playerIndex].kits[kit] = [];
+
+            let ranksArray = players[playerIndex].kits[kit];
+            if(checkbox.checked) {
+                if(!ranksArray.includes(checkbox.value)) ranksArray.push(checkbox.value);
+            } else {
+                players[playerIndex].kits[kit] = ranksArray.filter(r => r !== checkbox.value);
+            }
+            await syncWithCloud(); // Sofortiges Cloud-Update bei Klick
+        }
+
+        async function deletePlayer(index) {
+            if(confirm(`Möchtest du ${players[index].ign} vollständig aus der Cloud löschen?`)) {
+                players.splice(index, 1);
+                renderAdminPanel();
+                await syncWithCloud();
+            }
+        }
+
+        /* TESTER ACCOUNT LOGIK (Lokal auf Admin-PC) */
+        function createTesterAccount() {
+            const user = document.getElementById('tester-username').value.trim();
+            const pass = document.getElementById('tester-password').value.trim();
+
+            if(!user || !pass) { alert("Bitte Username und Passwort für den Tester wählen!"); return; }
+            if(user === MASTER_USER || testers.some(t => t.username.toLowerCase() === user.toLowerCase())) { 
+                alert("Dieser Name ist bereits vergeben!"); 
+                return; 
+            }
+
+            testers.push({ username: user, password: pass });
+            localStorage.setItem('slosh_ranks_testers', JSON.stringify(testers));
+            
+            document.getElementById('tester-username').value = "";
+            document.getElementById('tester-password').value = "";
+            renderTesterList();
+        }
+
+        function renderTesterList() {
+            const container = document.getElementById('tester-accounts-list');
+            container.innerHTML = "";
+
+            if(testers.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.8rem;">Keine aktiven Tester-Accounts.</p>';
+                return;
+            }
+
+            testers.forEach((tester, index) => {
+                container.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; background:#1a1a1a; padding:10px; border-radius:6px; margin-top:6px; font-size:0.85rem; border:1px solid var(--border-color);">
+                        <span>👤 <strong>${tester.username}</strong> (PW: <code>${tester.password}</code>)</span>
+                        <span onclick="deleteTester(${index})" style="color:#FF4E4E; cursor:pointer;">Löschen</span>
+                    </div>
+                `;
+            });
+        }
+
+        function deleteTester(index) {
+            testers.splice(index, 1);
+            localStorage.setItem('slosh_testers', JSON.stringify(testers));
+            renderTesterList();
+        }
+    </script>
+</body>
+</html>
